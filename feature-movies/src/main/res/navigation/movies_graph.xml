@@ -11,5 +11,27 @@
         tools:layout="@layout/movies_fragment">
 
         <deepLink app:uri="@string/movies_deep_link" />
+
+        <action
+            android:id="@+id/action_show_movie_details"
+            app:destination="@+id/movieDetailFragment">
+
+            <argument
+                android:name="movieId"
+                app:argType="integer" />
+
+        </action>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/movieDetailFragment"
+        android:name="app.bettermetesttask.movie_detail.sections.MovieDetailFragment"
+        tools:layout="@layout/movie_detail_fragment">
+
+        <argument
+            android:name="movieId"
+            app:argType="integer"
+            android:defaultValue="-1"/>
     </fragment>
 </navigation>

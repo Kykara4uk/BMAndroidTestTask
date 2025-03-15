@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import app.bettermetesttask.datamovies.database.entities.LikedMovieEntity
 import app.bettermetesttask.datamovies.database.entities.MovieEntity
 import kotlinx.coroutines.flow.Flow
@@ -16,10 +17,13 @@ interface MoviesDao{
     suspend fun selectMovies(): List<MovieEntity>
 
     @Query("SELECT * FROM MoviesTable WHERE id = :id")
-    suspend fun selectMovieById(id: Int): List<MovieEntity>
+    suspend fun selectMovieById(id: Int): MovieEntity?
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMovie(movie: MovieEntity)
+
+    @Upsert
+    suspend fun insertMovies(movies: List<MovieEntity>)
 
     @Update
     suspend fun updateMovie(movie: MovieEntity)
@@ -35,4 +39,7 @@ interface MoviesDao{
 
     @Query("DELETE FROM MoviesTable")
     suspend fun deleteMovies()
+
+    @Query("SELECT EXISTS(SELECT * FROM LikedMovieEntry WHERE movie_id = :movieId)")
+    suspend fun isMovieLiked(movieId: Int): Boolean
 }

@@ -8,6 +8,10 @@ import app.bettermetesttask.navigation.HomeCoordinator
 import app.bettermetesttask.navigation.HomeCoordinatorImpl
 import app.bettermetesttask.navigation.HomeNavigator
 import app.bettermetesttask.navigation.HomeNavigatorImpl
+import app.bettermetesttask.navigation.MovieCoordinator
+import app.bettermetesttask.navigation.MovieCoordinatorImpl
+import app.bettermetesttask.navigation.MovieNavigator
+import app.bettermetesttask.navigation.MovieNavigatorImpl
 import app.bettermetesttask.sections.home.HomeActivity
 import dagger.Module
 import dagger.Provides
@@ -27,6 +31,16 @@ class MainNavigationModule {
 
     @Provides
     fun bindCoordinator(coordinatorImpl: HomeCoordinatorImpl): HomeCoordinator {
+        return coordinatorImpl
+    }
+
+    @Provides
+    fun bindMovieNavigator(navigatorImpl: MovieNavigatorImpl): MovieNavigator {
+        return navigatorImpl
+    }
+
+    @Provides
+    fun bindMovieCoordinator(coordinatorImpl: MovieCoordinatorImpl): MovieCoordinator {
         return coordinatorImpl
     }
 }

@@ -4,6 +4,7 @@ plugins {
 }
 
 apply from: '../sharedconfigs-include.gradle'
+apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android {
     namespace 'app.bettermetesttask.movies'
