@@ -1,5 +1,6 @@
 package app.bettermetesttask.datamovies.repository.stores
 
+import androidx.room.withTransaction
 import app.bettermetesttask.datamovies.database.MoviesDatabase
 import app.bettermetesttask.datamovies.database.dao.MoviesDao
 import app.bettermetesttask.datamovies.database.entities.LikedMovieEntity
@@ -17,11 +18,20 @@ class MoviesLocalStore @Inject constructor(
         get() = database.getMoviesDao()
 
     suspend fun getMovies(): List<MovieEntity> {
+        //In real app with large list better to use paging
         return moviesDao.selectMovies()
     }
 
-    suspend fun getMovie(id: Int): MovieEntity {
-        return moviesDao.selectMovieById(id).first()
+    suspend fun saveMovies(movies: List<MovieEntity>) {
+        //In real app with large list better to update only changed items
+        database.withTransaction {
+            moviesDao.deleteMovies()
+            moviesDao.insertMovies(movies)
+        }
+    }
+
+    suspend fun getMovie(id: Int): MovieEntity? {
+        return moviesDao.selectMovieById(id)
     }
 
     suspend fun likeMovie(id: Int) {
@@ -34,5 +44,9 @@ class MoviesLocalStore @Inject constructor(
 
     fun observeLikedMoviesIds(): Flow<List<Int>> {
         return moviesDao.selectLikedEntries().map { movieIdsFlow -> movieIdsFlow.map { it.movieId } }
+    }
+
+    suspend fun isMovieLiked(movieId: Int): Boolean {
+        return moviesDao.isMovieLiked(movieId)
     }
 }

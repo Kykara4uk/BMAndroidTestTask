@@ -7,6 +7,7 @@ import app.bettermetesttask.domaincore.utils.Result
 import app.bettermetesttask.domainmovies.entries.Movie
 import app.bettermetesttask.domainmovies.repository.MoviesRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class MoviesRepositoryImpl @Inject constructor(
@@ -16,12 +17,24 @@ class MoviesRepositoryImpl @Inject constructor(
 
     private val restStore = MoviesRestStore()
 
-    override suspend fun getMovies(): Result<List<Movie>> {
-        TODO("Not yet implemented")
+    override suspend fun getMovies(): Flow<Result<List<Movie>>> {
+        return flow {
+            val localMovies = localStore.getMovies()
+            if (localMovies.isNotEmpty()) {
+                emit(Result.Success(localMovies.map { mapper.mapFromLocal(it) }))
+            }
+            val restResult = Result.of { restStore.getMovies() }
+            if (restResult is Result.Success) {
+                localStore.saveMovies(restResult.data.map { mapper.mapToLocal(it) })
+            }
+            emit(restResult)
+        }
     }
 
     override suspend fun getMovie(id: Int): Result<Movie> {
-        return Result.of { mapper.mapFromLocal(localStore.getMovie(id)) }
+        val movie = localStore.getMovie(id) ?: return Result.Error(Exception("Movie not found"))
+        val isLiked = isMovieLiked(id)
+        return Result.of { mapper.mapFromLocal(movie).copy(liked = isLiked) }
     }
 
     override fun observeLikedMovieIds(): Flow<List<Int>> {
@@ -34,5 +47,9 @@ class MoviesRepositoryImpl @Inject constructor(
 
     override suspend fun removeMovieFromFavorites(movieId: Int) {
         localStore.dislikeMovie(movieId)
+    }
+
+    private suspend fun isMovieLiked(movieId: Int): Boolean {
+        return localStore.isMovieLiked(movieId)
     }
 }
